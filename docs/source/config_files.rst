@@ -17,12 +17,8 @@ GitHub contains a list of sample repositories for common configurations
 that ``repo2docker`` can build with various configuration files such as
 Python and R installation in a repository.
 
-Below is a list of supported configuration files (roughly in the order of build priority):
-
-.. contents::
-   :local:
-   :depth: 1
-
+A list of supported configuration files (roughly in the order of build priority)
+can be found on this page (and to the right).
 
 .. _environment.yml:
 
@@ -179,6 +175,9 @@ To see example repositories, visit our
 
 A script that can contain arbitrary commands to be run after the whole repository has been built. If you
 want this to be a shell script, make sure the first line is ``#!/bin/bash``.
+
+Note that by default the build will not be stopped if an error occurs inside a shell script.
+You should include ``set -e`` or the equivalent at the start of the script to avoid errors being silently ignored.
 
 An example use-case of ``postBuild`` file is JupyterLab's demo on mybinder.org.
 It uses a ``postBuild`` file in a folder called ``binder`` to `prepare

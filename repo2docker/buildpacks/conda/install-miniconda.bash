@@ -3,11 +3,11 @@
 set -ex
 
 cd $(dirname $0)
-MINICONDA_VERSION=4.7.10
+MINICONDA_VERSION=4.7.12.1
 CONDA_VERSION=4.7.12
 # Only MD5 checksums are available for miniconda
 # Can be obtained from https://repo.continuum.io/miniconda/
-MD5SUM="1c945f2b3335c7b2b15130b1b2dc5cf4"
+MD5SUM="81c773ff87af5cfac79ab862942ab6b3"
 
 URL="https://repo.continuum.io/miniconda/Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh"
 INSTALLER_PATH=/tmp/miniconda-installer.sh
@@ -49,6 +49,14 @@ conda config --system --set channel_priority "flexible"
 echo "installing notebook env:"
 cat /tmp/environment.yml
 conda env create -p ${NB_PYTHON_PREFIX} -f /tmp/environment.yml
+
+# Install jupyter-offline-notebook to allow users to download notebooks
+# after the server connection has been lost
+# This will install and enable the extension for jupyter notebook
+${NB_PYTHON_PREFIX}/bin/python -m pip install https://github.com/manics/jupyter-offlinenotebook/archive/7ba3520.zip
+# and this installs it for lab. Keep going if the lab version is incompatible
+# with the extension
+${NB_PYTHON_PREFIX}/bin/jupyter labextension install jupyter-offlinenotebook || true
 
 # empty conda history file,
 # which seems to result in some effective pinning of packages in the initial env,
