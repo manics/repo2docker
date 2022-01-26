@@ -30,7 +30,7 @@ ENV_FILE_T = HERE / "environment.py-{py}.yml"
 yaml = YAML(typ="rt")
 
 
-def freeze(env_file, frozen_file, platform="linux-64"):
+def freeze(env_file, frozen_file, platform):
     """Freeze a conda environment
 
     By running:
@@ -119,12 +119,24 @@ if __name__ == "__main__":
         help="Python version(s) to update and freeze",
         default=("2.7", "3.6", "3.7", "3.8", "3.9"),
     )
+    parser.add_argument(
+        "--platform",
+        default=[],
+        action="append",
+        help="Conda platforms to use (default linux-64 and linux-aarch64)",
+    )
     args = parser.parse_args()
     default_py = "3.7"
+    default_platform = "linux-64"
+    platforms = args.platform or ["linux-64", "linux-aarch64"]
     for py in args.py:
         env_file = pathlib.Path(str(ENV_FILE_T).format(py=py))
         set_python(env_file, py)
-        frozen_file = pathlib.Path(os.path.splitext(env_file)[0] + ".lock")
-        freeze(env_file, frozen_file)
-        if py == default_py:
-            shutil.copy(frozen_file, FROZEN_FILE)
+        for platform in platforms:
+            if py == "2.7" and platform == "linux-aarch64":
+                print(f"Python {py} not supported on {platform}")
+                continue
+            frozen_file = pathlib.Path(f"{os.path.splitext(env_file)[0]}-{platform}.lock")
+            freeze(env_file, frozen_file, platform)
+            if py == default_py and platform == default_platform:
+                shutil.copy(frozen_file, FROZEN_FILE)
