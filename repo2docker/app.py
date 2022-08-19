@@ -325,6 +325,19 @@ class Repo2Docker(Application):
         config=True,
     )
 
+    registry_login_kwargs = Dict(
+        {},
+        help="""
+        Keyword arguments passed to container engine login() method
+        """,
+        config=True,
+    )
+
+    @default("registry_login_kwargs")
+    def _default_registry_login_kwargs(self):
+        """Set registry_login_kwargs from an environment variable"""
+        return json.loads(os.environ.get("REGISTRY_LOGIN_KWARGS", "{}"))
+
     push = Bool(
         False,
         help="""
@@ -525,6 +538,8 @@ class Repo2Docker(Application):
     def push_image(self):
         """Push docker image to registry"""
         client = self.get_engine()
+        if self.registry_login_kwargs:
+            client.login(**self.registry_login_kwargs)
         # Build a progress setup for each layer, and only emit per-layer
         # info every 1.5s
         progress_layers = {}

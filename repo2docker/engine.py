@@ -262,6 +262,17 @@ class ContainerEngine(LoggingConfigurable):
         """
         raise NotImplementedError("push not implemented")
 
+    def login(self, **kwargs):
+        """
+        Login to a registry
+
+        Parameters
+        ----------
+        kwargs : dict
+            Implementation specific parameters to login to a registry
+        """
+        raise NotImplementedError("login not implemented")
+
     # Note this is different from the Docker client which has Client.containers.run
     def run(
         self,

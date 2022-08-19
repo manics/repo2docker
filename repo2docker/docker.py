@@ -119,6 +119,9 @@ class DockerEngine(ContainerEngine):
     def push(self, image_spec):
         return self._apiclient.push(image_spec, stream=True)
 
+    def login(self, **kwargs):
+        return self._apiclient.login(**kwargs)
+
     def run(
         self,
         image_spec,
