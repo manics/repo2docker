@@ -1,4 +1,5 @@
 import errno
+import os
 import pytest
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
@@ -105,6 +106,45 @@ def test_run_kwargs(repo_with_content):
     args, kwargs = containers.run.call_args
     assert "somekey" in kwargs
     assert kwargs["somekey"] == "somevalue"
+
+
+@pytest.mark.parametrize(
+    "login_kwargs,login_env,expected_login",
+    [
+        (
+            {"username": "abc", "password": "123"},
+            "",
+            {"username": "abc", "password": "123"},
+        ),
+        (
+            None,
+            '{"username": "abc", "password": "123"}',
+            {"username": "abc", "password": "123"},
+        ),
+        (None, "", None),
+    ],
+)
+def test_push_login(repo_with_content, login_kwargs, login_env, expected_login):
+    upstream, sha1 = repo_with_content
+    argv = [upstream]
+
+    with patch.dict(os.environ, {"REGISTRY_LOGIN_KWARGS": login_env}):
+        app = make_r2d(argv)
+        if login_kwargs is not None:
+            app.registry_login_kwargs = login_kwargs
+        app.output_image_spec = "example/abc:123"
+
+        with patch.object(docker, "APIClient") as client:
+            app.push_image()
+            print(
+                login_env, "REGISTRY_LOGIN_KWARGS", os.getenv("REGISTRY_LOGIN_KWARGS")
+            )
+
+    if expected_login:
+        client().login.assert_called_once_with(**expected_login)
+    else:
+        assert not client().login.called
+    client().push.assert_called_once_with("example/abc:123", stream=True)
 
 
 def test_root_not_allowed():

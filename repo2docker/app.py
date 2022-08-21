@@ -336,7 +336,10 @@ class Repo2Docker(Application):
     @default("registry_login_kwargs")
     def _default_registry_login_kwargs(self):
         """Set registry_login_kwargs from an environment variable"""
-        return json.loads(os.environ.get("REGISTRY_LOGIN_KWARGS", "{}"))
+        login_kwargs = os.environ.get("REGISTRY_LOGIN_KWARGS")
+        if login_kwargs:
+            return json.loads(login_kwargs)
+        return {}
 
     push = Bool(
         False,
