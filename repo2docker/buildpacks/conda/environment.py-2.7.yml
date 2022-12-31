@@ -1,7 +1,8 @@
+# AUTO GENERATED FROM environment-unsupported.yml, DO NOT MANUALLY MODIFY
+# Generated on 2022-12-31 01:17:11 UTC
 channels:
 - conda-forge
 dependencies:
 - python=2.7.*
 - pip
-- ipykernel==4.8.2
-- wcwidth==0.1.9
+- ipykernel
