@@ -1,0 +1,6 @@
+channels:
+  - conda-forge
+dependencies:
+  - python=PYTHON_VERSION
+  - pip
+  - ipykernel

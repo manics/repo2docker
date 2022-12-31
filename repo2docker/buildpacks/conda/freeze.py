@@ -19,9 +19,12 @@ from subprocess import check_call
 
 from ruamel.yaml import YAML
 
+JUPYTERHUB_UNSUPPORTED_PYTHON_VERSIONS = ("2.7", "3.5")
+
 HERE = pathlib.Path(os.path.dirname(os.path.abspath(__file__)))
 
 ENV_FILE = HERE / "environment.yml"
+UNSUPPORTED_ENV_FILE = HERE / "environment-unsupported.yml"
 FROZEN_FILE = os.path.splitext(ENV_FILE)[0] + ".lock"
 
 ENV_FILE_T = HERE / "environment.py-{py}.yml"
@@ -81,15 +84,12 @@ def freeze(env_file, frozen_file, platform="linux-64"):
 
 def set_python(py_env_file, py):
     """Set the Python version in an env file"""
-    if os.path.exists(py_env_file):
-        # only clobber auto-generated files
-        with open(py_env_file) as f:
-            text = f.readline()
-            if "GENERATED" not in text:
-                return
-
-    print(f"Regenerating {py_env_file} from {ENV_FILE}")
-    with open(ENV_FILE) as f:
+    if py in JUPYTERHUB_UNSUPPORTED_PYTHON_VERSIONS:
+        env_file = UNSUPPORTED_ENV_FILE
+    else:
+        env_file = ENV_FILE
+    print(f"Regenerating {py_env_file} from {env_file}")
+    with open(env_file) as f:
         env = yaml.load(f)
     for idx, dep in enumerate(env["dependencies"]):
         if dep.split("=")[0] == "python":
@@ -100,7 +100,7 @@ def set_python(py_env_file, py):
     # update python dependency
     with open(py_env_file, "w") as f:
         f.write(
-            f"# AUTO GENERATED FROM {ENV_FILE.relative_to(HERE)}, DO NOT MANUALLY MODIFY\n"
+            f"# AUTO GENERATED FROM {env_file.relative_to(HERE)}, DO NOT MANUALLY MODIFY\n"
         )
         f.write(f"# Generated on {datetime.utcnow():%Y-%m-%d %H:%M:%S UTC}\n")
         yaml.dump(env, f)
@@ -117,7 +117,7 @@ if __name__ == "__main__":
         "py",
         nargs="*",
         help="Python version(s) to update and freeze",
-        default=("3.7", "3.8", "3.9", "3.10"),
+        default=("2.7", "3.5", "3.6", "3.7", "3.8", "3.9", "3.10"),
     )
     args = parser.parse_args()
     default_py = "3.7"
