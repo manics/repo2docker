@@ -39,7 +39,7 @@ def pytest_collect_file(parent, file_path):
         return RemoteRepoList.from_parent(parent, path=file_path)
 
 
-def make_test_func(args, skip_build=False, extra_run_kwargs=None, external_script=None):
+def make_test_func(args, extra_run_kwargs=None, external_script=None):
     """Generate a test function that runs repo2docker"""
 
     def test():
@@ -47,12 +47,6 @@ def make_test_func(args, skip_build=False, extra_run_kwargs=None, external_scrip
         app.initialize()
         if extra_run_kwargs:
             app.extra_run_kwargs.update(extra_run_kwargs)
-        if skip_build:
-
-            def build_noop():
-                print("Skipping build")
-
-            app.skip_build = build_noop
         if app.run_cmd:
             # verify test, run it
             app.start()
@@ -210,7 +204,6 @@ class Repo2DockerTest(pytest.Function):
         name,
         parent,
         args=None,
-        skip_build=False,
         extra_run_kwargs=None,
         external_script=None,
     ):
@@ -218,7 +211,6 @@ class Repo2DockerTest(pytest.Function):
         self.save_cwd = os.getcwd()
         f = parent.obj = make_test_func(
             args,
-            skip_build=skip_build,
             extra_run_kwargs=extra_run_kwargs,
             external_script=external_script,
         )
@@ -266,7 +258,6 @@ class LocalRepo(pytest.File):
                 self,
                 name=external_verify_script.name,
                 args=args,
-                skip_build=True,
                 external_script=external_verify_script,
             )
 
@@ -274,7 +265,6 @@ class LocalRepo(pytest.File):
             self,
             name=self.path.name,
             args=args + ["./verify"],
-            skip_build=True,
         )
 
         # mount the tests dir as a volume
@@ -288,7 +278,6 @@ class LocalRepo(pytest.File):
             self,
             name="check-tmp",
             args=check_tmp_args,
-            skip_build=True,
             extra_run_kwargs={"user": "root"},
         )
 
