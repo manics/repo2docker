@@ -4,4 +4,4 @@
 set -eux
 
 export TEST_REPO2DOCKER_URL="${1}/?token=token"
-pytest --verbose --color=yes --browser=firefox tests/ui/browser/external-verify.py
+pytest --verbose --color=yes --browser=firefox tests/ui/browser-runtime/external-verify.py

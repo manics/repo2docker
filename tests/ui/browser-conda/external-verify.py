@@ -7,8 +7,8 @@ from playwright.sync_api import Page, expect
 
 
 # To run this test manually:
-# - Run: repo2docker tests/ui/browser/
-# - Run: TEST_REPO2DOCKER_URL=<connection-url> python -mpytest --browser=firefox tests/ui/browser/external-verify.py [--headed]
+# - Run: repo2docker tests/ui/browser-conda/
+# - Run: TEST_REPO2DOCKER_URL=<connection-url> python -mpytest --browser=firefox tests/ui/browser-conda/external-verify.py [--headed]
 def test_user_interfaces(page: Page) -> None:
     url = os.getenv("TEST_REPO2DOCKER_URL")
     u = urlsplit(url)
